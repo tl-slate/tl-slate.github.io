@@ -1,0 +1,94 @@
+// ---- Real talent data (tlidb.com/ko SS13 재능) ----
+export type Tier = '핵심' | '레전드중위' | '중위' | '하위'
+
+export interface Stat {
+  descriptor: string
+  value: number
+  unit: string // '%' or ''
+}
+
+/** 핵심 재능 레벨: 2 = 신 보드(신당 6개), 1 = 그 신 소속 직업 보드(신당 4보드×4=16개) */
+export type CoreLevel = 1 | 2
+
+export interface Talent {
+  id: string
+  god: string
+  tier: Tier
+  coreLevel?: CoreLevel // 핵심 재능에만 존재
+  board?: string // 소속 보드 한글명(예: 기계의 신 / 명사수)
+  name: string
+  effect: string
+  stats: Stat[]
+  max: number // 최대 몇 개(포인트)까지: 하위3 / 중위3 / 레전드중위1 / 핵심1
+  /** 신격 유효 한도 — 옵션에 "(신격 유효 한도: N)"이 적힌 재능만 갖는 개별 속성. 1이면 복제 불가 */
+  divLimit?: number
+  pts: number | null
+}
+
+export interface TalentDB {
+  source: string
+  gods: string[]
+  labels: Record<string, string>
+  tierMax: Record<Tier, number>
+  talents: Record<string, Talent[]>
+}
+
+// ---- Board / shapes ----
+export interface Cell {
+  x: number
+  y: number
+}
+
+export type Category = '일반' | '레전드' | '명왕'
+export type Rot = 0 | 1 | 2 | 3
+
+/** 방향형 복제 효과(빛이 된 나방)의 방향. 보드 기준(회전과 무관). */
+export type CopyDir = 'up' | 'down' | 'left' | 'right'
+
+/** A slot on a slate: which talent tiers are allowed, and base(고정) vs brand(낙인). */
+export interface SlotSpec {
+  tiers: Tier[]
+  /** tiers에 '핵심'이 있을 때 허용 레벨 제한. 없으면 레벨 무관. */
+  coreLevels?: CoreLevel[]
+  kind?: 'base' | 'brand'
+}
+
+/** A palette piece the player can drop onto the board. */
+export interface SlateType {
+  key: string
+  name: string
+  category: Category
+  shape: Cell[]
+  slots: SlotSpec[]
+  note?: string // special option (copy effect) for slates with no talent slots
+}
+
+/** A placed slate. Shape/slots denormalized so custom shapes just work. */
+export interface Placement {
+  id: string
+  key?: string // SlateType.key — 불러올 때 최신 정의로 다시 맞추는 용도
+  name: string
+  category: Category
+  shape: Cell[]
+  slots: SlotSpec[]
+  note?: string
+  x: number
+  y: number
+  rot: Rot
+  god: string | null
+  talents: (string | null)[] // indexed by slot
+  /** 빛이 된 나방 전용: 어느 방향 석판을 복제할지(아이템에 한 방향만 붙음) */
+  copyDir?: CopyDir
+  confirmed?: boolean
+}
+
+export interface BoardConfig {
+  w: number
+  h: number
+  disabled: string[]
+}
+
+export interface SimState {
+  board: BoardConfig
+  placements: Placement[]
+}

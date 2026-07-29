@@ -3,6 +3,7 @@ import type { BoardConfig, Category, Cell, CopyDir, Placement, Rot, SimState, Sl
 import { inBounds, inCanvas, invalidPlacements } from '../engine/board'
 import { absoluteCells, cellKey, orientedShape } from '../engine/geometry'
 import { rehydrate } from '../engine/rehydrate'
+import { nextRot } from '../engine/rots'
 
 const LS_KEY = 'tl-slate-sim:v5'
 const SAVES_KEY = 'tl-slate-saves:v1'
@@ -230,7 +231,7 @@ export const useStore = create<Store>((set, get) => ({
   },
 
   updateDragPointer: (px, py) => set((s) => (s.drag ? { drag: { ...s.drag, px, py } } : {})),
-  rotateDrag: () => set((s) => (s.drag ? { drag: { ...s.drag, rot: ((s.drag.rot + 1) % 4) as Rot } } : {})),
+  rotateDrag: () => set((s) => (s.drag ? { drag: { ...s.drag, rot: nextRot(s.drag.key, s.drag.rot) } } : {})),
   cancelDrag: () => set({ drag: null }),
 
   select: (id) => {
@@ -307,13 +308,14 @@ export const useStore = create<Store>((set, get) => ({
     const { state } = get()
     const p = state.placements.find((pp) => pp.id === id)
     if (!p) return
-    const nextRot = ((p.rot + 1) % 4) as Rot
-    const cells = orientedShape(p.shape, nextRot).map((c) => ({ x: c.x + p.x, y: c.y + p.y }))
+    const next = nextRot(p.key, p.rot) // 방향이 제한된 석판(인펙션)은 허용된 것끼리만 돈다
+    if (next === p.rot) return
+    const cells = orientedShape(p.shape, next).map((c) => ({ x: c.x + p.x, y: c.y + p.y }))
     if (!inCanvas(cells, state.board)) return
     set((s) => ({
       state: {
         ...s.state,
-        placements: s.state.placements.map((pp) => (pp.id === id ? { ...pp, rot: nextRot, confirmed: false } : pp)),
+        placements: s.state.placements.map((pp) => (pp.id === id ? { ...pp, rot: next, confirmed: false } : pp)),
       },
     }))
   },

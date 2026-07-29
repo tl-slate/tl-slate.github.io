@@ -1,5 +1,6 @@
 import { SHAPE_LIBRARY } from '../data/slates'
 import type { SimState } from '../types'
+import { clampRot } from './rots'
 
 const BY_KEY = new Map(SHAPE_LIBRARY.map((s) => [s.key, s]))
 const BY_NAME = new Map(SHAPE_LIBRARY.map((s) => [s.name, s]))
@@ -22,6 +23,8 @@ export function rehydrate(state: SimState): SimState {
       return {
         ...p,
         seq,
+        // 방향 제한이 생긴 석판(인펙션은 세워서만)은 저장된 방향을 허용값으로 맞춘다
+        rot: clampRot(def.key, p.rot),
         key: def.key,
         name: def.name,
         category: def.category,

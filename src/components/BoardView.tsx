@@ -5,6 +5,7 @@ import { CATEGORY_COLOR, godMeta } from '../data/slates'
 import { allInRange, inCanvas, invalidPlacements, occupancy, overlaps, resolveAll } from '../engine/board'
 import { absoluteCells, cellKey, orientedShape } from '../engine/geometry'
 import { overLimitIds, overLimitReason as overReason } from '../engine/limits'
+import { isSpotFor, offSpotIds, spotReason } from '../engine/spots'
 import { useStore } from '../state/store'
 
 const CELL = 56
@@ -73,8 +74,9 @@ export function BoardView() {
   }, [board.w, board.h])
 
   const invalid = useMemo(() => invalidPlacements(state), [state])
-  // 종류별 개수 한도를 넘긴 석판 — 확정 여부와 무관하게 항상 빨갛게 보여야 한다
+  // 계산에서 빠지는 석판(개수 한도 초과 / 명왕 자리 이탈) — 확정 여부와 무관하게 항상 빨갛게
   const overLimit = useMemo(() => overLimitIds(state), [state])
+  const offSpot = useMemo(() => offSpotIds(state), [state])
 
   const preview = useMemo(() => {
     if (!drag || !boardRef.current) return null
@@ -87,7 +89,9 @@ export function BoardView() {
     const cells = orientedShape(drag.shape, drag.rot).map((c) => ({ x: c.x + anchor.x, y: c.y + anchor.y }))
     const ignore = drag.kind === 'move' ? drag.id ?? undefined : undefined
     const occ = occupancy(resolveAll(placements))
-    const valid = allInRange(cells, board) && !overlaps(cells, occ, ignore)
+    // 명왕 석판은 정해진 자리에만 들어가므로 미리보기에서도 자리 여부를 같이 본다
+    const onSpot = isSpotFor(drag.key, drag.shape, anchor.x, anchor.y, drag.rot)
+    const valid = allInRange(cells, board) && !overlaps(cells, occ, ignore) && onSpot
     return { cells, overBoard, valid }
   }, [drag, board, placements])
 
@@ -171,7 +175,8 @@ export function BoardView() {
           const isSel = selectedId === p.id
           const inProgress = p.confirmed === false
           const bad = invalid.has(p.id)
-          const over = overLimit.has(p.id)
+          const offSpotHere = offSpot.has(p.id)
+          const over = overLimit.has(p.id) || offSpotHere
           const color = pieceColor(p)
           const meta = godMeta(p.god)
           const labelCell = cells.reduce((a, c) => (c.y < a.y || (c.y === a.y && c.x < a.x) ? c : a), cells[0])
@@ -216,10 +221,16 @@ export function BoardView() {
                     e.preventDefault()
                     removePlacement(p.id)
                   }}
-                  title={over ? `${overReason(state, p.id) ?? '개수 제한 초과'} — 미적용` : '드래그: 이동 · 우클릭: 삭제'}
+                  title={
+                    offSpotHere
+                      ? `${spotReason(p.key) ?? '놓을 수 없는 자리'} — 미적용`
+                      : over
+                        ? `${overReason(state, p.id) ?? '개수 제한 초과'} — 미적용`
+                        : '드래그: 이동 · 우클릭: 삭제'
+                  }
                 >
                   {c.x === labelCell.x && c.y === labelCell.y && over && (
-                    <span className="piece-over">제한 초과 · 미적용</span>
+                    <span className="piece-over">{offSpotHere ? '자리 아님 · 미적용' : '제한 초과 · 미적용'}</span>
                   )}
                   {c.x === labelCell.x && c.y === labelCell.y && p.category !== '일반' && (
                     <span className="piece-label">

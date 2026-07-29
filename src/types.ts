@@ -61,6 +61,16 @@ export interface SlateType {
   shape: Cell[]
   slots: SlotSpec[]
   note?: string // special option (copy effect) for slates with no talent slots
+  /**
+   * 놓을 수 있는 방향(회전). 없으면 4방향 전부.
+   * 예: 인펙션은 세워서만 놓이므로 [0, 2] (눕히는 rot 1·3 불가).
+   */
+  rots?: Rot[]
+  /**
+   * 놓을 수 있는 자리. 없으면 보드 어디든.
+   * 명왕 석판은 정해진 자리에만 들어간다(추방=네 모서리, 심판=네 가운데 모서리).
+   */
+  spots?: { x: number; y: number; rot: Rot }[]
   /** 보드에 놓을 수 있는 최대 개수. 없으면 무제한 */
   limit?: number
   /**

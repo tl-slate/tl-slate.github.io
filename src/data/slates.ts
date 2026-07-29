@@ -110,6 +110,15 @@ const NETHER_SLATES: SlateType[] = [
     name: '명왕의 신격: 심판',
     category: '명왕',
     shape: c([0, 0], [3, 0], [3, 3]), // shenpan · 사이 2칸 빈 ㄱ자 (모서리 배치)
+    // 네 "가운데 모서리" 칸 (3,3)·(6,3)·(3,6)·(6,6) 중 셋을 찍는 자리 4개.
+    // 육각 보드는 6×6에서 네 귀퉁이를 3칸씩 잘라낸 모양이고, 잘린 빗변의 가운데 칸이 저 넷이다.
+    // 넷 다 (3,3)에 놓이고 회전만 다르다 — 어느 모서리가 꺾임점이 되는지가 달라진다.
+    spots: [
+      { x: 3, y: 3, rot: 0 },
+      { x: 3, y: 3, rot: 1 },
+      { x: 3, y: 3, rot: 2 },
+      { x: 3, y: 3, rot: 3 },
+    ],
     ...NK_LIMIT,
     slots: NK_SLOTS,
     // tlidb Nether_Kings_Divinity: "Divinity Slates on links between Divinities have 70% increased affix effect."
@@ -120,6 +129,7 @@ const NETHER_SLATES: SlateType[] = [
     name: '명왕의 신격: 인펙션',
     category: '명왕',
     shape: c([0, 0], [0, 1], [0, 2]), // qinran · 세로 3
+    rots: [0, 2], // 세워서만 놓인다 — 눕히기 불가(사용자 확인)
     ...NK_LIMIT,
     slots: NK_SLOTS,
     // tlidb: "Existing Brand Talents … are projected at 20% strength to all Slates directly adjacent to the Divinity."
@@ -130,6 +140,14 @@ const NETHER_SLATES: SlateType[] = [
     name: '명왕의 신격: 추방',
     category: '명왕',
     shape: c([0, 0], [1, 1], [2, 2]), // fangzhu · 대각선 3
+    // 육각 보드의 잘린 네 귀퉁이(모서리) 빗변 3칸에 딱 맞는 자리 4개.
+    // 좌상 (4,2)(3,3)(2,4) / 우상 (5,2)(6,3)(7,4) / 좌하 (2,5)(3,6)(4,7) / 우하 (7,5)(6,6)(5,7)
+    spots: [
+      { x: 2, y: 2, rot: 1 },
+      { x: 5, y: 2, rot: 0 },
+      { x: 2, y: 5, rot: 0 },
+      { x: 5, y: 5, rot: 1 },
+    ],
     ...NK_LIMIT,
     slots: NK_SLOTS,
     // tlidb: Demolisher / Steep Strike / Shadow Strike 계열별 전투 효과 3종 — 보드 배치 계산과 무관.

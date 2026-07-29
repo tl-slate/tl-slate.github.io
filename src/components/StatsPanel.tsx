@@ -40,6 +40,12 @@ export function StatsPanel({ result }: { result: AggregateResult }) {
         </div>
       )}
 
+      {result.offSpotCount > 0 && (
+        <div className="stats-over">
+          놓을 수 없는 자리에 있는 명왕 석판 {result.offSpotCount}개가 아래 계산에서 빠졌습니다.
+        </div>
+      )}
+
       {result.core.length > 0 && (
         <section className="stats-section">
           <h3>핵심</h3>

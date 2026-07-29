@@ -5,6 +5,7 @@ import { computeInfections, isInfection } from './infection'
 import type { InfectedLine } from './infection'
 import { judgmentBoosts } from './judgment'
 import { overLimitIds, overLimitNames } from './limits'
+import { offSpotIds } from './spots'
 
 export interface NumericStat {
   key: string
@@ -45,6 +46,8 @@ export interface AggregateResult {
   /** 종류별 개수 한도를 넘겨 계산에서 제외된 석판 수와 그 요약(예: ["들불 번지는 순간 2/1"]) */
   overLimitCount: number
   overLimitSummary: string[]
+  /** 정해진 자리를 벗어나 계산에서 제외된 명왕 석판 수 */
+  offSpotCount: number
   slates: number
   cells: number
 }
@@ -82,11 +85,14 @@ const sortNumeric = (m: Map<string, NumericStat>): NumericStat[] =>
 export function aggregate(fullState: SimState, db: TalentDB): AggregateResult {
   const idx = buildTalentIndex(db)
 
-  // 종류별 개수 한도를 넘긴 석판(늦게 놓은 쪽)은 효과가 적용되지 않는다.
-  // 아예 없는 셈 치고 계산해야 복제·투영·심판까지 일관되게 빠진다.
+  // 효과가 적용되지 않는 석판: 종류별 개수 한도를 넘겼거나(늦게 놓은 쪽),
+  // 명왕 석판이 정해진 자리를 벗어났거나. 아예 없는 셈 치고 계산해야
+  // 복제·투영·심판까지 일관되게 빠진다.
   const overIds = overLimitIds(fullState)
+  const offIds = offSpotIds(fullState)
+  const skipped = new Set([...overIds, ...offIds])
   const state: SimState =
-    overIds.size > 0 ? { ...fullState, placements: fullState.placements.filter((p) => !overIds.has(p.id)) } : fullState
+    skipped.size > 0 ? { ...fullState, placements: fullState.placements.filter((p) => !skipped.has(p.id)) } : fullState
 
   // 심판 활성화 시 연결선 상 석판의 수치 스탯 ×1.7 (석판 단위)
   const boosts = judgmentBoosts(state)
@@ -161,6 +167,7 @@ export function aggregate(fullState: SimState, db: TalentDB): AggregateResult {
     hasInfection: state.placements.some(isInfection),
     overLimitCount: overIds.size,
     overLimitSummary: overLimitNames(fullState),
+    offSpotCount: offIds.size,
     slates: state.placements.length,
     cells,
   }

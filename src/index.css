@@ -1063,6 +1063,40 @@ kbd {
   line-height: 1.25;
   word-break: keep-all;
 }
+/* 불러온 세팅이 석판 개수 한도를 넘었을 때의 경고 */
+.limit-warn {
+  margin: 0 0 8px;
+  padding: 7px 10px;
+  font-size: 0.72rem;
+  line-height: 1.4;
+  color: var(--danger);
+  background: rgba(226, 88, 91, 0.09);
+  border: 1px solid rgba(226, 88, 91, 0.35);
+  border-radius: 6px;
+}
+
+/* 종류별 배치 한도(놓인 수/최대) — 한도가 있는 석판에만 표시 */
+.shape-limit {
+  position: absolute;
+  top: 3px;
+  right: 4px;
+  font-size: 0.6rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+  opacity: 0.75;
+}
+.shape-item.full {
+  cursor: not-allowed;
+  opacity: 0.42;
+}
+.shape-item.full:hover {
+  border-color: var(--line);
+  background: var(--panel);
+}
+.shape-item.full .shape-limit {
+  color: var(--danger);
+  opacity: 1;
+}
 .shape-del {
   position: absolute;
   top: 2px;

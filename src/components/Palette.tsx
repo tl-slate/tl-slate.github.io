@@ -1,6 +1,7 @@
 import type { Category, SlateType } from '../types'
 import { CATEGORY_COLOR, SHAPE_LIBRARY } from '../data/slates'
 import { bounds } from '../engine/geometry'
+import { limitInfo } from '../engine/limits'
 import { useStore } from '../state/store'
 
 function ShapePreview({ shape, color }: { shape: SlateType['shape']; color: string }) {
@@ -21,23 +22,38 @@ function ShapePreview({ shape, color }: { shape: SlateType['shape']; color: stri
 
 function PaletteItem({ item }: { item: SlateType }) {
   const beginDragNew = useStore((s) => s.beginDragNew)
+  const state = useStore((s) => s.state)
   const color = CATEGORY_COLOR[item.category]
+  const lim = limitInfo(state, item)
+
+  const limitText = lim.limit == null ? '' : `${lim.placed}/${lim.limit}`
+  const fullText = lim.shared
+    ? '명왕 석판은 3종 통틀어 1개까지 놓을 수 있습니다'
+    : `${item.name} — 최대 ${lim.limit}개까지 놓을 수 있습니다`
+  const title = lim.canPlace
+    ? item.note
+      ? `${item.name} — ${item.note}`
+      : '보드로 드래그해서 배치'
+    : fullText
+
   return (
     <div
-      className="shape-item"
+      className={`shape-item${lim.canPlace ? '' : ' full'}`}
       onPointerDown={(e) => {
         e.preventDefault()
         // 검색창 등에 남은 포커스를 빼서 이후 R/Del/Esc 단축키가 막히지 않게 한다
         const ae = document.activeElement as HTMLElement | null
         if (ae && ae !== document.body) ae.blur()
+        if (!lim.canPlace) return // 한도 초과 — 드래그 자체를 시작하지 않는다
         beginDragNew(item, e.clientX, e.clientY)
       }}
-      title={item.note ? `${item.name} — ${item.note}` : '보드로 드래그해서 배치'}
+      title={title}
     >
       <span className="shape-thumb">
         <ShapePreview shape={item.shape} color={color} />
       </span>
       {item.category !== '일반' && <span className="shape-name">{item.name}</span>}
+      {limitText && <span className="shape-limit">{limitText}</span>}
     </div>
   )
 }

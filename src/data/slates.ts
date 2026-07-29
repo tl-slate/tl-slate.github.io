@@ -29,6 +29,7 @@ const LEGEND: SlateType[] = [
     category: '레전드',
     shape: c([0, 0]), // O1 · 1칸
     slots: [],
+    limit: 3,
     // tlidb 원문: 위쪽/왼쪽/아래쪽/오른쪽 4종이 각각 별도 옵션으로 존재(한 방향만 굴러 붙음).
     // 마지막 재능 한 줄 = 제일 아래 채워진 재능. 핵심·신격 한도 1 재능은 복제 불가(사용자 확인).
     note: '위쪽·왼쪽·아래쪽·오른쪽 중 한 방향 석판의 마지막 재능 한 줄을 해당 석판으로 복제한다. 핵심 재능과 신격 한도 1 재능은 복제할 수 없다.',
@@ -39,6 +40,7 @@ const LEGEND: SlateType[] = [
     category: '레전드',
     shape: c([0, 0]), // O3 · 1칸
     slots: [],
+    limit: 1,
     note: '모든 인접 석판의 마지막 재능 한 줄을 해당 석판으로 복제한다. 핵심 재능과 신격 한도 1 재능은 복제할 수 없다.',
   },
   {
@@ -46,6 +48,7 @@ const LEGEND: SlateType[] = [
     name: '추락하는 별빛',
     category: '레전드',
     shape: c([0, 0], [1, 0]), // I1 · 2칸
+    limit: 3,
     // tlidb 표기: <하위><하위><하위 또는 중위><중위> — 이 중위 칸에는 레전드 중위도 들어간다.
     slots: [S('하위'), S('하위'), S('하위', '중위', '레전드중위'), S('중위', '레전드중위')],
   },
@@ -54,6 +57,7 @@ const LEGEND: SlateType[] = [
     name: '신성의 일각',
     category: '레전드',
     shape: c([0, 0], [0, 1], [1, 1]), // V1 · 3칸
+    limit: 3,
     slots: [S('레전드중위'), S('레전드중위')],
   },
   {
@@ -70,6 +74,7 @@ const LEGEND: SlateType[] = [
     name: '신의 계보',
     category: '레전드',
     shape: c([0, 0], [1, 0], [0, 1], [1, 1], [2, 1], [1, 2], [2, 2]), // ZZ1 · 7칸
+    limit: 1, // tlidb /ko/Pedigree_of_Gods: "(해당 신격의 석판 유효 최대치: 1)"
     // tlidb 원문: <하위 또는 중위><하위 또는 중위><중위 또는 1레벨 핵심><2레벨 핵심>
     // (중위 칸에는 레전드 중위도 포함되고, 마지막 칸에는 1레벨 핵심도 들어간다 — 사용자 확인)
     slots: [
@@ -96,12 +101,16 @@ const NK_BRAND = (): SlotSpec => ({ tiers: ['하위', '중위', '레전드중위
 const NK_SLOTS: SlotSpec[] = [NK_FIXED, NK_BRAND(), NK_BRAND(), NK_BRAND()]
 
 // 명왕 신규 석판(전설급). 3종, 형태 전부 다름. tlidb Devilblock 아이콘에서 읽음.
+// 캐릭터당 명왕 석판은 3종 통틀어 1개(사용자 확정) — limitGroup으로 묶어 합산 한도를 건다.
+const NK_LIMIT = { limit: 1, limitGroup: 'nether' } as const
+
 const NETHER_SLATES: SlateType[] = [
   {
     key: 'nk-judgment',
     name: '명왕의 신격: 심판',
     category: '명왕',
     shape: c([0, 0], [3, 0], [3, 3]), // shenpan · 사이 2칸 빈 ㄱ자 (모서리 배치)
+    ...NK_LIMIT,
     slots: NK_SLOTS,
     // tlidb Nether_Kings_Divinity: "Divinity Slates on links between Divinities have 70% increased affix effect."
     note: '심판: 슬롯을 모두 채우면 활성화 — 신격 조각 사이 연결선 상의 신격의 석판은 옵션 효과 계수 +70%. 캐릭터당 명왕 석판 1개.',
@@ -111,6 +120,7 @@ const NETHER_SLATES: SlateType[] = [
     name: '명왕의 신격: 인펙션',
     category: '명왕',
     shape: c([0, 0], [0, 1], [0, 2]), // qinran · 세로 3
+    ...NK_LIMIT,
     slots: NK_SLOTS,
     // tlidb: "Existing Brand Talents … are projected at 20% strength to all Slates directly adjacent to the Divinity."
     note: '인펙션: 슬롯을 모두 채우면 활성화 — 이 석판에 새겨진 낙인 재능을 직접 인접한 모든 석판에 20% 강도로 투영한다. 캐릭터당 명왕 석판 1개.',
@@ -120,6 +130,7 @@ const NETHER_SLATES: SlateType[] = [
     name: '명왕의 신격: 추방',
     category: '명왕',
     shape: c([0, 0], [1, 1], [2, 2]), // fangzhu · 대각선 3
+    ...NK_LIMIT,
     slots: NK_SLOTS,
     // tlidb: Demolisher / Steep Strike / Shadow Strike 계열별 전투 효과 3종 — 보드 배치 계산과 무관.
     note: '추방: 슬롯을 모두 채우면 활성화 — 스킬 계열별(Demolisher·Steep Strike·Shadow Strike·Spell Burst·Ill Omen·Quagmire·Projection·Provision) 전투 특수 효과를 부여한다(전투 발동형이라 보드 계산과 무관). 캐릭터당 명왕 석판 1개.',

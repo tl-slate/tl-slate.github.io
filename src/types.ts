@@ -61,6 +61,13 @@ export interface SlateType {
   shape: Cell[]
   slots: SlotSpec[]
   note?: string // special option (copy effect) for slates with no talent slots
+  /** 보드에 놓을 수 있는 최대 개수. 없으면 무제한 */
+  limit?: number
+  /**
+   * 한도를 여러 석판이 공유할 때의 묶음 키(예: 명왕 3종은 통틀어 1개).
+   * 지정하면 같은 그룹 석판들의 배치 수를 합쳐서 limit과 비교한다.
+   */
+  limitGroup?: string
 }
 
 /** A placed slate. Shape/slots denormalized so custom shapes just work. */

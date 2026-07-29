@@ -10,7 +10,8 @@ import { absoluteCells, cellKey } from './geometry'
  * - 복사 불가 = 핵심 재능 + "신격 유효 한도: 1"이 옵션에 적힌 재능(divLimit, 재능 개별 속성).
  *   등급 기준이 아니다 — 레전드 중위라도 한도 표기가 없으면 복사된다(사용자 확인).
  *   마지막 줄이 복사 불가 재능이면 아무것도 복제되지 않는다(윗줄로 대체하지 않음).
- * - 우주의 균열은 예외적으로 중위·레전드중위·절대자 명왕 재능을 명시적으로 복제한다.
+ * - 우주의 균열은 좌/우 변에 닿은 석판 전부에서 중위·레전드중위·절대자 명왕 재능을 복제한다.
+ *   단 "신격 유효 한도: 1" 재능은 복사해도 효과가 없으므로 복제하지 않는다(사용자 확인).
  * - 복제된 재능은 다시 복제되지 않는다(연쇄 없음 — 원본 슬롯의 재능만 소스).
  * - 방향(위/아래/왼쪽/오른쪽)은 보드 기준이며 석판 회전과 무관.
  */
@@ -74,9 +75,10 @@ function lastTalent(p: Placement, idx: Map<string, Talent>): Talent | null {
 /** 마지막 줄 복사 가능 여부: 핵심 불가 + "신격 유효 한도: 1" 표기 재능 불가 (등급 무관) */
 const canCopyLastLine = (t: Talent) => t.tier !== '핵심' && t.divLimit !== 1
 
-/** 우주의 균열이 복제하는 재능: 중위 / 레전드중위 / 절대자 명왕 재능 */
+/** 우주의 균열이 복제하는 재능: 중위 / 레전드중위 / 절대자 명왕 재능 (신격 유효 한도 1 재능 제외) */
 const riftCopies = (t: Talent) =>
-  t.tier === '중위' || t.tier === '레전드중위' || (t.god === 'Nether King' && t.tier === '핵심')
+  t.divLimit !== 1 &&
+  (t.tier === '중위' || t.tier === '레전드중위' || (t.god === 'Nether King' && t.tier === '핵심'))
 
 export function computeCopies(state: SimState, idx: Map<string, Talent>): CopiedLine[] {
   const copiers = state.placements.filter((p) => p.key && COPIER_KEYS.has(p.key))
@@ -118,7 +120,7 @@ export function computeCopies(state: SimState, idx: Map<string, Talent>): Copied
         if (!src) continue
         for (const tid of src.talents) {
           const t = tid ? idx.get(tid) : undefined
-          if (t && t.tier === '중위') push(p, src, t)
+          if (t && t.tier === '중위' && t.divLimit !== 1) push(p, src, t)
         }
       }
     }

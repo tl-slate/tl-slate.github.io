@@ -118,6 +118,8 @@ export function aggregate(state: SimState, db: TalentDB): AggregateResult {
 
   // 인펙션 투영: 낙인 재능 × 인접 석판마다 한 줄. 수치는 계수(0.2×강화) 적용 후 반올림 정수.
   // 투영받은 줄은 투영 대상(target) 석판의 옵션이 되므로 그 석판의 심판 보정도 함께 받는다(복제와 동일 원칙).
+  // 단 명왕 석판은 캐릭터당 1개라 심판과 인펙션이 동시에 놓일 일은 실전에 없다(사용자 확정) —
+  // 보드에 둘 다 올려본 경우에만 타는 경로다.
   const infected = computeInfections(state, idx).map((l) => {
     const jf = boosts.get(l.targetId) ?? 1
     return jf === 1 ? l : { ...l, factor: l.factor * jf }

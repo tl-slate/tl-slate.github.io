@@ -269,6 +269,8 @@ export const useStore = create<Store>((set, get) => ({
     if (!inCanvas(cells, state.board)) return false
     const placement: Placement = {
       id: newId(),
+      // 배치 순번 — 이후 재정렬(석판을 잡으면 배열 끝으로 감)과 무관하게 한도 판정 순서를 지킨다
+      seq: state.placements.reduce((m, p) => Math.max(m, p.seq ?? -1), -1) + 1,
       key: item.key,
       name: item.name,
       category: item.category,

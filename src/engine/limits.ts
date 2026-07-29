@@ -12,7 +12,9 @@ import { SHAPE_LIBRARY } from '../data/slates'
  *
  * **배치는 막지 않는다**(사용자 결정). 겹침·범위밖과 같은 방식으로, 한도를 넘긴 석판은
  * 보드에 빨갛게 표시하고 집계에서 빼서 "제한 초과 미적용"으로 보여준다.
- * 초과로 판정되는 것은 **늦게 놓은 쪽**이다(placements 배열 순서 = 배치 순서, 겹침 판정과 동일 규칙).
+ * 초과로 판정되는 것은 **늦게 놓은 쪽**이다. 순서 기준은 `Placement.seq`(배치 순번)이며,
+ * placements 배열 순서를 쓰면 석판을 잡을 때마다 배열이 재정렬돼(겹침 판정 때문)
+ * 클릭만 해도 초과 대상이 바뀌어 버린다.
  */
 
 const TYPE_BY_KEY = new Map(SHAPE_LIBRARY.map((t) => [t.key, t]))
@@ -52,15 +54,23 @@ export function limitInfo(state: SimState, type: SlateType): LimitInfo {
 /** 이 석판을 한 개 더 놓아도 한도 안인가 (팔레트 안내용 — 배치를 막지는 않는다) */
 export const canPlaceMore = (state: SimState, type: SlateType): boolean => limitInfo(state, type).canPlace
 
+/** seq가 있으면 그걸로, 없는 예전 저장분은 배열 인덱스로 순서를 매긴다 */
+const order = ({ p, i }: { p: { seq?: number }; i: number }) => p.seq ?? i
+
 /**
  * 한도를 넘겨 **효과가 적용되지 않는** 석판 id들.
- * 앞에서부터 한도만큼만 유효하고 그 뒤(늦게 놓은 것)가 초과다.
+ * 먼저 놓은 것부터 한도만큼 유효하고 그 뒤(늦게 놓은 것)가 초과다.
  * 집계·복제·투영 계산에서 통째로 빠지고, 보드에는 빨갛게 표시된다.
+ *
+ * 순서 기준은 `Placement.seq`(배치 순번)다. placements 배열 순서를 쓰면
+ * 석판을 잡을 때마다(겹침 판정 때문에 배열 끝으로 재정렬됨) 초과 대상이 바뀌어,
+ * 클릭만 해도 멀쩡한 석판에 초과 표시가 붙는다.
  */
 export function overLimitIds(state: SimState): Set<string> {
   const seen = new Map<string, number>()
   const out = new Set<string>()
-  for (const p of state.placements) {
+  const ordered = state.placements.map((p, i) => ({ p, i })).sort((a, b) => order(a) - order(b))
+  for (const { p } of ordered) {
     if (!p.key) continue
     const t = TYPE_BY_KEY.get(p.key)
     if (t?.limit == null) continue

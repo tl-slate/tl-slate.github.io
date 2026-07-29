@@ -87,6 +87,12 @@ export interface Placement {
   /** 빛이 된 나방 전용: 어느 방향 석판을 복제할지(아이템에 한 방향만 붙음) */
   copyDir?: CopyDir
   confirmed?: boolean
+  /**
+   * 배치 순번(작을수록 먼저 놓음). 개수 한도 초과 판정에 쓴다.
+   * placements 배열 순서는 석판을 잡을 때마다 뒤로 재정렬되므로(겹침 판정용)
+   * 클릭만 해도 초과 대상이 바뀌어 버린다 — 그래서 순서를 따로 들고 있는다.
+   */
+  seq?: number
 }
 
 export interface BoardConfig {

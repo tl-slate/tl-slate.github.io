@@ -13,11 +13,15 @@ const BY_NAME = new Map(SHAPE_LIBRARY.map((s) => [s.name, s]))
 export function rehydrate(state: SimState): SimState {
   return {
     ...state,
-    placements: state.placements.map((p) => {
+    placements: state.placements.map((p, i) => {
+      // seq(배치 순번)가 없는 예전 저장본은 지금 배열 순서를 순번으로 굳혀 둔다.
+      // 이후 석판을 잡아 배열이 재정렬돼도 개수 한도 판정 순서가 흔들리지 않는다.
+      const seq = p.seq ?? i
       const def = (p.key ? BY_KEY.get(p.key) : undefined) ?? BY_NAME.get(p.name)
-      if (!def) return p
+      if (!def) return { ...p, seq }
       return {
         ...p,
+        seq,
         key: def.key,
         name: def.name,
         category: def.category,

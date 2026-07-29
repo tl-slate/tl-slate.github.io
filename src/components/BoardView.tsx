@@ -4,6 +4,7 @@ import type { Cell, Placement } from '../types'
 import { CATEGORY_COLOR, godMeta } from '../data/slates'
 import { allInRange, inCanvas, invalidPlacements, occupancy, overlaps, resolveAll } from '../engine/board'
 import { absoluteCells, cellKey, orientedShape } from '../engine/geometry'
+import { overLimitIds, overLimitReason as overReason } from '../engine/limits'
 import { useStore } from '../state/store'
 
 const CELL = 56
@@ -72,6 +73,8 @@ export function BoardView() {
   }, [board.w, board.h])
 
   const invalid = useMemo(() => invalidPlacements(state), [state])
+  // 종류별 개수 한도를 넘긴 석판 — 확정 여부와 무관하게 항상 빨갛게 보여야 한다
+  const overLimit = useMemo(() => overLimitIds(state), [state])
 
   const preview = useMemo(() => {
     if (!drag || !boardRef.current) return null
@@ -168,10 +171,11 @@ export function BoardView() {
           const isSel = selectedId === p.id
           const inProgress = p.confirmed === false
           const bad = invalid.has(p.id)
+          const over = overLimit.has(p.id)
           const color = pieceColor(p)
           const meta = godMeta(p.god)
           const labelCell = cells.reduce((a, c) => (c.y < a.y || (c.y === a.y && c.x < a.x) ? c : a), cells[0])
-          const stateCls = inProgress ? (bad ? ' bad' : ' good') : ''
+          const stateCls = (inProgress ? (bad ? ' bad' : ' good') : '') + (over ? ' over' : '')
           const box = p.key === 'l-pedigree' ? bbox(cells) : null
           const own = new Set(cells.map((cc) => cellKey(cc.x, cc.y)))
           return (
@@ -212,8 +216,11 @@ export function BoardView() {
                     e.preventDefault()
                     removePlacement(p.id)
                   }}
-                  title="드래그: 이동 · 우클릭: 삭제"
+                  title={over ? `${overReason(state, p.id) ?? '개수 제한 초과'} — 미적용` : '드래그: 이동 · 우클릭: 삭제'}
                 >
+                  {c.x === labelCell.x && c.y === labelCell.y && over && (
+                    <span className="piece-over">제한 초과 · 미적용</span>
+                  )}
                   {c.x === labelCell.x && c.y === labelCell.y && p.category !== '일반' && (
                     <span className="piece-label">
                       <span className="piece-name">{p.name}</span>

@@ -463,6 +463,33 @@ kbd {
 .piece.bad::after {
   box-shadow: inset 0 0 0 2px var(--danger);
 }
+/* 종류별 개수 한도를 넘긴 석판 — 확정 여부와 무관하게 항상 빨간 테두리 + 흐리게(미적용) */
+.piece.over::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 7;
+  box-shadow: inset 0 0 0 2px var(--danger);
+}
+.piece.over {
+  filter: grayscale(0.5) brightness(0.72);
+}
+.piece-over {
+  position: absolute;
+  left: 2px;
+  top: 2px;
+  z-index: 8;
+  padding: 1px 4px;
+  font-size: 0.56rem;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+  color: #fff;
+  background: var(--danger);
+  border-radius: 3px;
+  pointer-events: none;
+}
 /* 신의 계보 실제 아트 오버레이: 셀 위에 그리되(z5) 라벨(z6)보다는 아래, 클릭은 통과 */
 .piece-img {
   position: absolute;
@@ -1063,12 +1090,13 @@ kbd {
   line-height: 1.25;
   word-break: keep-all;
 }
-/* 불러온 세팅이 석판 개수 한도를 넘었을 때의 경고 */
-.limit-warn {
+/* 개수 한도를 넘겨 계산에서 빠진 석판 안내 (인스펙터 / 합산 패널 공용) */
+.insp-over,
+.stats-over {
   margin: 0 0 8px;
   padding: 7px 10px;
   font-size: 0.72rem;
-  line-height: 1.4;
+  line-height: 1.45;
   color: var(--danger);
   background: rgba(226, 88, 91, 0.09);
   border: 1px solid rgba(226, 88, 91, 0.35);
@@ -1085,14 +1113,7 @@ kbd {
   color: var(--muted);
   opacity: 0.75;
 }
-.shape-item.full {
-  cursor: not-allowed;
-  opacity: 0.42;
-}
-.shape-item.full:hover {
-  border-color: var(--line);
-  background: var(--panel);
-}
+/* 한도를 다 쓴 상태 — 배치는 여전히 가능하고(놓으면 미적용) 숫자만 빨갛게 알린다 */
 .shape-item.full .shape-limit {
   color: var(--danger);
   opacity: 1;

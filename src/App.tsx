@@ -8,7 +8,6 @@ import { SavesModal } from './components/SavesModal'
 import { StatsPanel } from './components/StatsPanel'
 import { Toolbar } from './components/Toolbar'
 import { aggregate } from './engine/aggregate'
-import { overLimitNames } from './engine/limits'
 import { useStore } from './state/store'
 
 function isEditable(el: EventTarget | null): boolean {
@@ -50,8 +49,6 @@ export default function App() {
   }, [])
 
   const result = useMemo(() => (db ? aggregate(state, db) : null), [db, state])
-  // 배치는 한도를 강제하지만, 불러온 세팅은 막지 않고 경고만 띄운다
-  const overLimit = useMemo(() => overLimitNames(state), [state])
 
   return (
     <div className="app">
@@ -79,12 +76,6 @@ export default function App() {
             <Palette />
           </aside>
           <section className="col-board">
-            {overLimit.length > 0 && (
-              <div className="limit-warn">
-                한도를 넘은 석판이 있습니다 — {overLimit.join(', ')}. 불러온 세팅이라 그대로 두었지만 게임에서는 이렇게
-                놓을 수 없습니다.
-              </div>
-            )}
             <BoardView />
             <p className="board-hint">
               석판을 보드로 <b>드래그</b>해서 배치하세요. <kbd>R</kbd> 회전, 배치한 석판은 <b>드래그로 이동</b>,{' '}

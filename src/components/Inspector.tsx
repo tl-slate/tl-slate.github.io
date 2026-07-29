@@ -5,6 +5,7 @@ import { GODS } from '../data/slates'
 import { COPIER_KEYS, COPY_DIR_LABEL, computeCopies } from '../engine/copy'
 import { computeInfections, infectionActive, isInfection } from '../engine/infection'
 import { isJudgment, judgmentActive, judgmentBoosts } from '../engine/judgment'
+import { overLimitIds, overLimitReason } from '../engine/limits'
 import { slotAccepts, slotTierLabel, talentTierLabel } from '../engine/tiers'
 import { useStore } from '../state/store'
 import { TalentCombobox } from './TalentCombobox'
@@ -55,6 +56,9 @@ export function Inspector() {
     [infections, placement],
   )
 
+  // 종류별 개수 한도를 넘겨 계산에서 빠진 석판인가
+  const isOverLimit = useMemo(() => (placement ? overLimitIds(state).has(placement.id) : false), [state, placement])
+
   if (!placement) {
     return (
       <div className="inspector empty">
@@ -95,6 +99,13 @@ export function Inspector() {
           <div className="insp-sub">{placement.category}</div>
         </div>
       </div>
+
+      {isOverLimit && (
+        <div className="insp-over">
+          제한 초과 — 이 석판은 계산에 반영되지 않습니다. {overLimitReason(state, placement.id)} (나중에 놓은 것이
+          제외되며, 먼저 놓은 석판을 지우면 이 석판이 적용됩니다)
+        </div>
+      )}
 
       {placement.note && (
         <div className="insp-special">

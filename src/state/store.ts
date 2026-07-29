@@ -2,7 +2,6 @@ import { create } from 'zustand'
 import type { BoardConfig, Category, Cell, CopyDir, Placement, Rot, SimState, SlateType, SlotSpec, TalentDB } from '../types'
 import { inBounds, inCanvas, invalidPlacements } from '../engine/board'
 import { absoluteCells, cellKey, orientedShape } from '../engine/geometry'
-import { canPlaceKey } from '../engine/limits'
 import { rehydrate } from '../engine/rehydrate'
 
 const LS_KEY = 'tl-slate-sim:v5'
@@ -264,8 +263,8 @@ export const useStore = create<Store>((set, get) => ({
 
   placeAt: (item, x, y, rot) => {
     const { state } = get()
-    // 석판 종류별 최대 개수는 강제 규칙 — 한도를 넘기면 배치 자체를 막는다
-    if (!canPlaceKey(state, item.key)) return false
+    // 종류별 최대 개수를 넘겨도 배치는 허용한다(겹침·범위밖과 같은 정책).
+    // 넘긴 석판은 engine/limits의 overLimitIds가 잡아내 보드에 빨갛게 표시되고 집계에서 빠진다.
     const cells = orientedShape(item.shape, rot).map((c) => ({ x: c.x + x, y: c.y + y }))
     if (!inCanvas(cells, state.board)) return false
     const placement: Placement = {

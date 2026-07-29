@@ -33,6 +33,13 @@ function StatList({ stats, textual }: { stats: NumericStat[]; textual?: NamedEff
 export function StatsPanel({ result }: { result: AggregateResult }) {
   return (
     <div className="stats">
+      {result.overLimitCount > 0 && (
+        <div className="stats-over">
+          개수 제한 초과로 석판 {result.overLimitCount}개가 아래 계산에서 빠졌습니다 —{' '}
+          {result.overLimitSummary.join(', ')}
+        </div>
+      )}
+
       {result.core.length > 0 && (
         <section className="stats-section">
           <h3>핵심</h3>

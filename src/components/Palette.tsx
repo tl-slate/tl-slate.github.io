@@ -27,9 +27,10 @@ function PaletteItem({ item }: { item: SlateType }) {
   const lim = limitInfo(state, item)
 
   const limitText = lim.limit == null ? '' : `${lim.placed}/${lim.limit}`
+  // 한도를 넘겨도 배치는 막지 않는다 — 놓으면 보드에서 빨갛게 "제한 초과 · 미적용"으로 표시된다
   const fullText = lim.shared
-    ? '명왕 석판은 3종 통틀어 1개까지 놓을 수 있습니다'
-    : `${item.name} — 최대 ${lim.limit}개까지 놓을 수 있습니다`
+    ? '명왕 석판은 3종 통틀어 1개까지 적용됩니다 — 더 놓으면 제한 초과로 미적용됩니다'
+    : `${item.name} — 최대 ${lim.limit}개까지 적용됩니다. 더 놓으면 제한 초과로 미적용됩니다`
   const title = lim.canPlace
     ? item.note
       ? `${item.name} — ${item.note}`
@@ -44,7 +45,6 @@ function PaletteItem({ item }: { item: SlateType }) {
         // 검색창 등에 남은 포커스를 빼서 이후 R/Del/Esc 단축키가 막히지 않게 한다
         const ae = document.activeElement as HTMLElement | null
         if (ae && ae !== document.body) ae.blur()
-        if (!lim.canPlace) return // 한도 초과 — 드래그 자체를 시작하지 않는다
         beginDragNew(item, e.clientX, e.clientY)
       }}
       title={title}

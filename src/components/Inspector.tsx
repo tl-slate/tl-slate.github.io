@@ -3,6 +3,7 @@ import type { CSSProperties } from 'react'
 import type { CopyDir, SlotSpec, Talent } from '../types'
 import { GODS } from '../data/slates'
 import { COPIER_KEYS, COPY_DIR_LABEL, computeCopies } from '../engine/copy'
+import { computeInfections, infectionActive, isInfection } from '../engine/infection'
 import { isJudgment, judgmentActive, judgmentBoosts } from '../engine/judgment'
 import { slotAccepts, slotTierLabel, talentTierLabel } from '../engine/tiers'
 import { useStore } from '../state/store'
@@ -46,6 +47,13 @@ export function Inspector() {
 
   // 심판 보정(연결선 상 석판 ×1.7) 상태
   const boosts = useMemo(() => judgmentBoosts(state), [state])
+
+  // 인펙션 투영(낙인 재능 20% 강도) 상태
+  const infections = useMemo(() => computeInfections(state, idx), [state, idx])
+  const myInfections = useMemo(
+    () => (placement ? infections.filter((l) => l.targetId === placement.id) : []),
+    [infections, placement],
+  )
 
   if (!placement) {
     return (
@@ -105,6 +113,22 @@ export function Inspector() {
 
       {boosts.has(placement.id) && (
         <div className="insp-boost on">심판 연결선 위 — 이 석판의 수치 스탯에 ×1.7 적용 중 (반올림)</div>
+      )}
+
+      {isInfection(placement) && (
+        <div className={`insp-boost${infectionActive(placement) ? ' on' : ''}`}>
+          {infectionActive(placement)
+            ? `인펙션 활성 — 인접 석판 ${new Set(infections.filter((l) => l.sourceId === placement.id).map((l) => l.targetId)).size}개에 낙인 재능을 20% 강도로 투영 중 (수치는 반올림)`
+            : '인펙션 비활성 — 슬롯을 모두 채우면 낙인 재능 3개를 인접 석판에 20% 강도로 투영'}
+        </div>
+      )}
+
+      {myInfections.length > 0 && (
+        <div className="insp-boost on">
+          인펙션 인접 — 낙인 재능 {myInfections.length}줄을{' '}
+          {Math.round(myInfections[0].factor * (boosts.get(placement.id) ?? 1) * 1000) / 10}% 강도로 투영받는 중
+          {boosts.has(placement.id) && ' (심판 ×1.7 포함)'}
+        </div>
       )}
 
       {placement.key === 'l-moth' && (

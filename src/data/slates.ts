@@ -122,7 +122,7 @@ const NETHER_SLATES: SlateType[] = [
     shape: c([0, 0], [1, 1], [2, 2]), // fangzhu · 대각선 3
     slots: NK_SLOTS,
     // tlidb: Demolisher / Steep Strike / Shadow Strike 계열별 전투 효과 3종 — 보드 배치 계산과 무관.
-    note: '추방: 슬롯을 모두 채우면 활성화 — 스킬 계열(Demolisher·Steep Strike·Shadow Strike)에 따른 전투 특수 효과를 부여한다(보드 계산과 무관). 캐릭터당 명왕 석판 1개.',
+    note: '추방: 슬롯을 모두 채우면 활성화 — 스킬 계열별(Demolisher·Steep Strike·Shadow Strike·Spell Burst·Ill Omen·Quagmire·Projection·Provision) 전투 특수 효과를 부여한다(전투 발동형이라 보드 계산과 무관). 캐릭터당 명왕 석판 1개.',
   },
 ]
 

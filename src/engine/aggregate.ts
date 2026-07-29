@@ -1,6 +1,8 @@
 import type { SimState, Talent, TalentDB } from '../types'
 import { COPIER_KEYS, computeCopies } from './copy'
 import type { CopiedLine } from './copy'
+import { computeInfections, isInfection } from './infection'
+import type { InfectedLine } from './infection'
 import { judgmentBoosts } from './judgment'
 
 export interface NumericStat {
@@ -33,6 +35,12 @@ export interface AggregateResult {
   copiedTextual: NamedEffect[]
   /** 보드에 복제 석판(나방/들불/균열/별들의 고향)이 하나라도 있는가 — 섹션 상시 표시용 */
   hasCopiers: boolean
+  /** 인펙션 투영: 줄 목록(factor = 투영 계수 × 대상 석판의 심판 보정) + 투영분만의 별도 합산 */
+  infected: InfectedLine[]
+  infectedNumeric: NumericStat[]
+  infectedTextual: NamedEffect[]
+  /** 보드에 인펙션 석판이 있는가 — 섹션 상시 표시용 */
+  hasInfection: boolean
   slates: number
   cells: number
 }
@@ -43,18 +51,23 @@ function buildTalentIndex(db: TalentDB): Map<string, Talent> {
   return idx
 }
 
-/** 수치 스탯 합산. factor는 심판 보정(×1.7)이며 보정값은 반올림해 정수로 만든다. */
-function addNumeric(map: Map<string, NumericStat>, t: Talent, factor: number) {
+/**
+ * 수치 스탯 합산. factor 적용값은 반올림해 정수로 만든다(심판 ×1.7 / 인펙션 ×0.2 공통).
+ * markBoost=true면 factor≠1인 줄을 심판 보정 줄로 세어 "명왕 적용" 칩을 띄운다
+ * (인펙션 합산은 전 줄이 계수 적용이라 칩이 무의미 — false로 끈다).
+ */
+function addNumeric(map: Map<string, NumericStat>, t: Talent, factor: number, markBoost = true) {
   for (const s of t.stats) {
     const value = factor === 1 ? s.value : Math.round(s.value * factor)
     const key = `${s.unit}||${s.descriptor}`
+    const boost = markBoost && factor !== 1 ? 1 : 0
     const cur = map.get(key)
     if (cur) {
       cur.total += value
       cur.count++
-      if (factor !== 1) cur.boosted++
+      cur.boosted += boost
     } else {
-      map.set(key, { key, descriptor: s.descriptor, unit: s.unit, total: value, count: 1, boosted: factor !== 1 ? 1 : 0 })
+      map.set(key, { key, descriptor: s.descriptor, unit: s.unit, total: value, count: 1, boosted: boost })
     }
   }
 }
@@ -103,6 +116,19 @@ export function aggregate(state: SimState, db: TalentDB): AggregateResult {
     else addNamed(copiedTextMap, c.talent) // 수치 없는 복제 재능(0.5% 텍스트형 등)도 복제 합산에 나열
   }
 
+  // 인펙션 투영: 낙인 재능 × 인접 석판마다 한 줄. 수치는 계수(0.2×강화) 적용 후 반올림 정수.
+  // 투영받은 줄은 투영 대상(target) 석판의 옵션이 되므로 그 석판의 심판 보정도 함께 받는다(복제와 동일 원칙).
+  const infected = computeInfections(state, idx).map((l) => {
+    const jf = boosts.get(l.targetId) ?? 1
+    return jf === 1 ? l : { ...l, factor: l.factor * jf }
+  })
+  const infectedNumericMap = new Map<string, NumericStat>()
+  const infectedTextMap = new Map<string, NamedEffect>()
+  for (const l of infected) {
+    if (l.talent.stats.length) addNumeric(infectedNumericMap, l.talent, l.factor, false)
+    else addNamed(infectedTextMap, l.talent)
+  }
+
   const sortNamed = (m: Map<string, NamedEffect>): NamedEffect[] =>
     [...m.values()].sort((a, b) => b.count - a.count || a.name.localeCompare(b.name, 'ko'))
 
@@ -117,6 +143,10 @@ export function aggregate(state: SimState, db: TalentDB): AggregateResult {
     copiedNumeric: sortNumeric(copiedNumericMap),
     copiedTextual: sortNamed(copiedTextMap),
     hasCopiers: state.placements.some((p) => p.key != null && COPIER_KEYS.has(p.key)),
+    infected,
+    infectedNumeric: sortNumeric(infectedNumericMap),
+    infectedTextual: sortNamed(infectedTextMap),
+    hasInfection: state.placements.some(isInfection),
     slates: state.placements.length,
     cells,
   }

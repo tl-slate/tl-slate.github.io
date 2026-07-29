@@ -5,6 +5,9 @@ function fmt(total: number, unit: string): string {
   return `${rounded > 0 ? '+' : ''}${rounded}${unit}`
 }
 
+/** 투영 계수 0.2 → "20%", 0.224 → "22.4%" */
+const fmtFactor = (f: number) => `${Math.round(f * 1000) / 10}%`
+
 /** 합산 목록: 텍스트를 앞에, 수치는 뒤에 덜 강조해서 나열. 수치 없는 재능도 같은 목록에 나열 */
 function StatList({ stats, textual }: { stats: NumericStat[]; textual?: NamedEffect[] }) {
   return (
@@ -81,6 +84,41 @@ export function StatsPanel({ result }: { result: AggregateResult }) {
                 <p className="muted small">복제된 재능에 합산할 수치 스탯이 없습니다.</p>
               )}
               <p className="muted small">복제 재능은 위 합산 스탯에 포함되지 않고 여기서 따로 합산됩니다.</p>
+            </>
+          )}
+        </section>
+      )}
+
+      {(result.hasInfection || result.infected.length > 0) && (
+        <section className="stats-section">
+          <h3>인펙션 투영</h3>
+          {result.infected.length === 0 ? (
+            <p className="muted small">
+              투영되는 재능이 없습니다. 인펙션 석판의 슬롯 4개를 모두 채우고 다른 석판을 인접시키면 낙인 재능 3개가
+              인접 석판마다 20% 강도로 투영됩니다.
+            </p>
+          ) : (
+            <>
+              <ul className="copy-lines">
+                {result.infected.map((l, i) => (
+                  <li key={i}>
+                    <span className="copy-src">
+                      {l.targetName} ← 투영 {fmtFactor(l.factor)}
+                    </span>
+                    <span className="copy-effect">{l.talent.effect}</span>
+                  </li>
+                ))}
+              </ul>
+              <h4 className="copy-sum-title">투영 합산</h4>
+              {result.infectedNumeric.length + result.infectedTextual.length > 0 ? (
+                <StatList stats={result.infectedNumeric} textual={result.infectedTextual} />
+              ) : (
+                <p className="muted small">투영된 재능에 합산할 수치 스탯이 없습니다.</p>
+              )}
+              <p className="muted small">
+                투영 수치는 원본×계수 후 반올림한 정수이며 위 합산 스탯에 포함되지 않습니다. 텍스트형 재능은 원문
+                그대로 표시되지만 실제로는 표기 계수의 강도로 적용됩니다.
+              </p>
             </>
           )}
         </section>

@@ -184,7 +184,7 @@ export interface Store {
   saveCurrent: (name: string) => void
   deleteSave: (id: string) => void
   loadSave: (id: string) => void
-  importSetup: (state: SimState, name: string) => void
+  importSetup: (state: SimState) => void
 }
 
 export const useStore = create<Store>((set, get) => ({
@@ -391,11 +391,11 @@ export const useStore = create<Store>((set, get) => ({
     set({ state: rehydrate(clone(setup.state)), selectedId: null, drag: null, showSaves: false })
   },
 
-  importSetup: (state, name) => {
-    const setup: SavedSetup = { id: newId(), name: name.trim() || '가져온 세팅', savedAt: Date.now(), state: clone(state) }
-    const next = [setup, ...get().saves]
-    persistSaves(next)
-    set({ saves: next, state: rehydrate(clone(state)), selectedId: null, drag: null })
+  importSetup: (state) => {
+    if (typeof window !== 'undefined' && window.location.hash) {
+      history.replaceState(null, '', window.location.pathname + window.location.search)
+    }
+    set({ state: rehydrate(clone(state)), selectedId: null, drag: null, showSaves: false })
   },
 }))
 

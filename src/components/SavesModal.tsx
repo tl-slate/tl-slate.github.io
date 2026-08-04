@@ -45,7 +45,7 @@ export function SavesModal() {
     }
     setErr('')
     setImportText('')
-    importSetup(parsed.state, parsed.name)
+    importSetup(parsed.state)
   }
 
   return (

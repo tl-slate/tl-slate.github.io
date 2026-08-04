@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import type { BoardConfig, Category, Cell, CopyDir, Placement, Rot, SimState, SlateType, SlotSpec, TalentDB } from '../types'
-import { inBounds, inCanvas, invalidPlacements } from '../engine/board'
+import { inBounds, inCanvas } from '../engine/board'
 import { absoluteCells, cellKey, orientedShape } from '../engine/geometry'
 import { rehydrate } from '../engine/rehydrate'
 import { nextRot } from '../engine/rots'
@@ -161,7 +161,6 @@ export interface Store {
   cancelDrag: () => void
 
   select: (id: string | null) => void
-  confirm: (id: string) => void
   placeAt: (
     item: { key?: string; name: string; category: Category; shape: Cell[]; slots: SlotSpec[]; note?: string },
     x: number,
@@ -222,7 +221,7 @@ export const useStore = create<Store>((set, get) => ({
     const p = state.placements.find((pp) => pp.id === id)
     if (!p) return
     // move to end so it counts as the "latest" (flagged red on overlap) and renders on top
-    const reordered = [...state.placements.filter((pp) => pp.id !== id), { ...p, confirmed: false }]
+    const reordered = [...state.placements.filter((pp) => pp.id !== id), p]
     set({
       state: { ...state, placements: reordered },
       drag: { kind: 'move', id, key: p.key, name: p.name, category: p.category, shape: p.shape, slots: p.slots, note: p.note, rot: p.rot, grab, px, py },
@@ -234,33 +233,9 @@ export const useStore = create<Store>((set, get) => ({
   rotateDrag: () => set((s) => (s.drag ? { drag: { ...s.drag, rot: nextRot(s.drag.key, s.drag.rot) } } : {})),
   cancelDrag: () => set({ drag: null }),
 
-  select: (id) => {
-    const { state, selectedId } = get()
-    // clicking away auto-confirms the previously-worked slate if it sits validly
-    if (selectedId && selectedId !== id) {
-      const prev = state.placements.find((p) => p.id === selectedId)
-      if (prev && prev.confirmed === false && !invalidPlacements(state).has(selectedId)) {
-        set({
-          state: {
-            ...state,
-            placements: state.placements.map((p) => (p.id === selectedId ? { ...p, confirmed: true } : p)),
-          },
-          selectedId: id,
-        })
-        return
-      }
-    }
-    set({ selectedId: id })
-  },
-
-  confirm: (id) => {
-    const { state } = get()
-    if (invalidPlacements(state).has(id)) return // can't confirm an invalid placement
-    set({
-      state: { ...state, placements: state.placements.map((p) => (p.id === id ? { ...p, confirmed: true } : p)) },
-      selectedId: null,
-    })
-  },
+  // 초록/빨강 링은 confirmed 같은 별도 플래그가 아니라 selectedId(우측 인스펙터와 같은 값)에서
+  // 바로 파생된다(BoardView) — 선택이 바뀌는 모든 경로(드래그 시작 포함)가 자동으로 맞아떨어진다.
+  select: (id) => set({ selectedId: id }),
 
   placeAt: (item, x, y, rot) => {
     const { state } = get()
@@ -283,7 +258,6 @@ export const useStore = create<Store>((set, get) => ({
       rot,
       god: null,
       talents: item.slots.map(() => null),
-      confirmed: false,
     }
     set((s) => ({ state: { ...s.state, placements: [...s.state.placements, placement] }, selectedId: placement.id }))
     return true
@@ -298,7 +272,7 @@ export const useStore = create<Store>((set, get) => ({
     set((s) => ({
       state: {
         ...s.state,
-        placements: s.state.placements.map((pp) => (pp.id === id ? { ...pp, x, y, rot, confirmed: false } : pp)),
+        placements: s.state.placements.map((pp) => (pp.id === id ? { ...pp, x, y, rot } : pp)),
       },
     }))
     return true
@@ -315,7 +289,7 @@ export const useStore = create<Store>((set, get) => ({
     set((s) => ({
       state: {
         ...s.state,
-        placements: s.state.placements.map((pp) => (pp.id === id ? { ...pp, rot: next, confirmed: false } : pp)),
+        placements: s.state.placements.map((pp) => (pp.id === id ? { ...pp, rot: next } : pp)),
       },
     }))
   },

@@ -51,7 +51,6 @@ export function BoardView() {
   const beginDragMove = useStore((s) => s.beginDragMove)
   const removePlacement = useStore((s) => s.removePlacement)
   const rotatePlacement = useStore((s) => s.rotatePlacement)
-  const confirm = useStore((s) => s.confirm)
   const select = useStore((s) => s.select)
 
   const { board, placements } = state
@@ -173,14 +172,16 @@ export function BoardView() {
           const moving = drag?.kind === 'move' && drag.id === p.id
           const cells = absoluteCells(p)
           const isSel = selectedId === p.id
-          const inProgress = p.confirmed === false
           const bad = invalid.has(p.id)
           const offSpotHere = offSpot.has(p.id)
           const over = overLimit.has(p.id) || offSpotHere
           const color = pieceColor(p)
           const meta = godMeta(p.god)
           const labelCell = cells.reduce((a, c) => (c.y < a.y || (c.y === a.y && c.x < a.x) ? c : a), cells[0])
-          const stateCls = (inProgress ? (bad ? ' bad' : ' good') : '') + (over ? ' over' : '')
+          // 초록(작업중)/빨강(겹침 등 무효)은 selectedId에서 그대로 파생 — 별도 플래그가 없으니
+          // 선택이 바뀌는 어떤 경로(드래그 시작 포함)를 거쳐도 이전 석판 표시가 자동으로 걷힌다.
+          // 무효 표시는 선택 여부와 무관하게 항상 보인다(겹침은 고쳐야 할 문제라서).
+          const stateCls = (bad ? ' bad' : isSel ? ' good' : '') + (over ? ' over' : '')
           const box = p.key === 'l-pedigree' ? bbox(cells) : null
           const own = new Set(cells.map((cc) => cellKey(cc.x, cc.y)))
           return (
@@ -265,9 +266,9 @@ export function BoardView() {
             <button
               type="button"
               className="ok"
-              title={selInvalid ? '올바른 위치가 아니라 확인할 수 없음' : '확인 (고정)'}
+              title={selInvalid ? '올바른 위치가 아니라 닫을 수 없음' : '닫기'}
               disabled={selInvalid}
-              onClick={() => confirm(selected.id)}
+              onClick={() => select(null)}
             >
               ✓
             </button>

@@ -183,6 +183,21 @@ kbd {
   letter-spacing: 0.3px;
   white-space: nowrap;
 }
+.visitor-count {
+  flex: 0 0 auto;
+  padding: 4px 10px;
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.3px;
+  color: var(--gold);
+  background: linear-gradient(180deg, #1c1c20 0%, #26262b 50%, #333339 100%);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  box-shadow:
+    inset 0 2px 4px rgba(0, 0, 0, 0.8),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.06);
+  white-space: nowrap;
+}
 
 .loading,
 .error {

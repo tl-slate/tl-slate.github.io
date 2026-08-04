@@ -7,6 +7,7 @@ import { Palette } from './components/Palette'
 import { SavesModal } from './components/SavesModal'
 import { StatsPanel } from './components/StatsPanel'
 import { Toolbar } from './components/Toolbar'
+import { VisitorCount } from './components/VisitorCount'
 import { aggregate } from './engine/aggregate'
 import { useStore } from './state/store'
 
@@ -65,6 +66,7 @@ export default function App() {
           </div>
         </div>
         <Toolbar />
+        <VisitorCount />
       </header>
 
       {loading && <div className="loading">SS13 재능 데이터 불러오는 중…</div>}

@@ -62,6 +62,7 @@
   - 초록(good)=`selectedId === p.id`(우측 인스펙터에 뜨는 것과 동일 기준)이고 유효할 때, 빨강(bad)=`invalidPlacements`가 잡은 무효(겹침 등)일 때 — **선택 여부와 무관하게 항상** 표시(고쳐야 할 문제라서). 예전엔 `Placement.confirmed` 별도 플래그로 관리했는데, `beginDragNew`/`beginDragMove`가 `select()`를 안 거치고 selectedId를 직접 바꿔서 이전 석판의 플래그가 안 지워지고 초록이 남는 버그가 있었음(사용자 리포트로 발견, 2026-08-04 제거). 새 상태를 추가로 만들지 말고 selectedId에서 파생시킬 것
 - 콤보박스: blur 시 닫기(onBlur), 화살표는 onMouseDown(포커스 꼬임 방지). 보드/팔레트 pointerdown 시 activeElement.blur() (단축키 먹통 방지)
 - 삭제 = Del/우클릭/✕ (Backspace 금지)
+- **보드 스크린샷**(BoardView `.board-controls`, 2026-08-04): `html2canvas` 동적 import(번들 크기 때문에 클릭 시점에만 로드). `.piece`가 `color-mix(in srgb, ...)`로 배경·테두리를 칠하는데 html2canvas 색상 파서가 이걸 못 읽어서 그냥 캡처가 실패한다 — 게다가 크로미움이 `color-mix()`를 `getComputedStyle`로 되읽으면 `rgb()`가 아니라 이것도 html2canvas가 못 읽는 `color(srgb r g b)`로 내놓아서, 임시 엘리먼트로 계산시킨 뒤 그 값을 정규식으로 뜯어 `rgb()`로 직접 재조립해야 했다(`resolveCssColor`). `onclone`에서 원본↔복제 `.piece`를 순서로 매칭해 인라인으로 덮어씀 — 이 방식 자체가 `.piece` CSS의 정확한 블렌드 비율(70%/78%/42%)에 의존하니 그 값 바꾸면 여기도 같이 고칠 것
 - 도움말 등 안내 문구에 **게임 자체의 상식은 설명하지 않는다**(석판 칸수·보드 모양처럼 게임 화면 보면 바로 보이는 것). 사용자는 게임을 켜놓고 이 도구를 쓰므로, 안내는 **이 도구의 조작법**(드래그·저장·불러오기 등)에만 집중한다 — 2026-08-04 사용자 확정
 
 ## 남은 할일 / 미확인

@@ -3,7 +3,6 @@ import { createPortal } from 'react-dom'
 import { exportCode, useStore } from '../state/store'
 
 export function Toolbar() {
-  const reset = useStore((s) => s.reset)
   const setHelp = useStore((s) => s.setHelp)
   const setShowSaves = useStore((s) => s.setShowSaves)
   const saveCurrent = useStore((s) => s.saveCurrent)
@@ -49,9 +48,6 @@ export function Toolbar() {
         </button>
         <button type="button" onClick={() => setShowSaves(true)}>
           📁 불러오기
-        </button>
-        <button type="button" onClick={() => reset()} className="danger-outline">
-          ↺ 초기화
         </button>
         <button type="button" onClick={() => setHelp(true)} className="help-btn">
           ?

@@ -404,6 +404,18 @@ kbd {
   border-radius: 6px;
   box-shadow: 0 20px 60px -30px #000;
 }
+.board-controls {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 20;
+  display: flex;
+  gap: 6px;
+}
+.board-controls button {
+  padding: 4px 9px;
+  font-size: 0.8rem;
+}
 /* valid statue cell (the defined range) — bright */
 .cell {
   position: absolute;

@@ -52,6 +52,7 @@ export function BoardView() {
   const removePlacement = useStore((s) => s.removePlacement)
   const rotatePlacement = useStore((s) => s.rotatePlacement)
   const select = useStore((s) => s.select)
+  const reset = useStore((s) => s.reset)
 
   const { board, placements } = state
   const boardRef = useRef<HTMLDivElement>(null)
@@ -145,8 +146,58 @@ export function BoardView() {
   const selInvalid = selected ? invalid.has(selected.id) : false
   const selBox = selected ? bbox(absoluteCells(selected)) : null
 
+  // html2canvas의 색상 파서가 color-mix()를 못 읽는다(.piece 배경·테두리에 씀). 임시 엘리먼트의
+  // color에 같은 식을 넣고 브라우저가 계산한 값을 대신 읽어오는데, 크로미움은 그 결과를 rgb()가
+  // 아니라 이것도 html2canvas가 못 읽는 color(srgb r g b) 함수로 내놓는다 — 숫자만 뽑아 rgb()로
+  // 다시 조립한다.
+  function resolveCssColor(expr: string): string {
+    const probe = document.createElement('span')
+    probe.style.color = expr
+    document.body.appendChild(probe)
+    const resolved = getComputedStyle(probe).color
+    document.body.removeChild(probe)
+    const m = resolved.match(/^color\(srgb\s+([\d.]+)\s+([\d.]+)\s+([\d.]+)/)
+    if (!m) return resolved
+    const [r, g, b] = m.slice(1).map((v) => Math.round(Number(v) * 255))
+    return `rgb(${r}, ${g}, ${b})`
+  }
+
+  // 보드만 캡처(팔레트·인스펙터 제외) — 번들 크기 때문에 클릭 시점에 동적 로드
+  async function takeScreenshot() {
+    if (!boardRef.current) return
+    const { default: html2canvas } = await import('html2canvas')
+    const canvas = await html2canvas(boardRef.current, {
+      backgroundColor: '#050506',
+      onclone: (_doc, cloned) => {
+        const origPieces = boardRef.current!.querySelectorAll<HTMLElement>('.piece')
+        const clonedPieces = cloned.querySelectorAll<HTMLElement>('.piece')
+        origPieces.forEach((orig, i) => {
+          const pc = orig.style.getPropertyValue('--pc')
+          const clone = clonedPieces[i]
+          if (!pc || !clone) return
+          clone.style.borderColor = resolveCssColor(`color-mix(in srgb, ${pc} 70%, #000)`)
+          const c1 = resolveCssColor(`color-mix(in srgb, ${pc} 78%, #000)`)
+          const c2 = resolveCssColor(`color-mix(in srgb, ${pc} 42%, #000)`)
+          clone.style.backgroundImage = `linear-gradient(155deg, ${c1} 0%, ${c2} 100%)`
+        })
+      },
+    })
+    const link = document.createElement('a')
+    link.download = '석판.png'
+    link.href = canvas.toDataURL('image/png')
+    link.click()
+  }
+
   return (
     <div ref={wrapRef} className="board-wrap">
+      <div className="board-controls" onPointerDown={(e) => e.stopPropagation()}>
+        <button type="button" onClick={() => reset()} className="danger-outline" title="보드 초기화">
+          ↺ 초기화
+        </button>
+        <button type="button" onClick={() => void takeScreenshot()} title="석판 스크린샷 저장">
+          📷 스크린샷
+        </button>
+      </div>
       <div
         ref={boardRef}
         className="board"

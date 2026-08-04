@@ -55,6 +55,7 @@
 - 버튼 Y2K 베벨 스타일, 딥그레이-블랙 테마(남색·보라 금지, 명왕 보라 포인트 제외)
 - 보드는 transform scale 반응형(포인터 변환은 rect.width/board.w). `.board { flex-shrink: 0 }` 필수
 - 석판 둘레 외곽선 = 자기 셀 아닌 변에만 2px inset 심. 상태 링(good/bad)은 ::after(z7)
+  - 초록(good)=`selectedId === p.id`(우측 인스펙터에 뜨는 것과 동일 기준)이고 유효할 때, 빨강(bad)=`invalidPlacements`가 잡은 무효(겹침 등)일 때 — **선택 여부와 무관하게 항상** 표시(고쳐야 할 문제라서). 예전엔 `Placement.confirmed` 별도 플래그로 관리했는데, `beginDragNew`/`beginDragMove`가 `select()`를 안 거치고 selectedId를 직접 바꿔서 이전 석판의 플래그가 안 지워지고 초록이 남는 버그가 있었음(사용자 리포트로 발견, 2026-08-04 제거). 새 상태를 추가로 만들지 말고 selectedId에서 파생시킬 것
 - 콤보박스: blur 시 닫기(onBlur), 화살표는 onMouseDown(포커스 꼬임 방지). 보드/팔레트 pointerdown 시 activeElement.blur() (단축키 먹통 방지)
 - 삭제 = Del/우클릭/✕ (Backspace 금지)
 

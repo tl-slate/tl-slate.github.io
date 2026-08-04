@@ -150,7 +150,7 @@ kbd {
   display: flex;
   align-items: center;
   gap: 20px;
-  max-width: 1600px;
+  max-width: 1320px;
   margin: 0 auto;
 }
 .brand {
@@ -218,7 +218,7 @@ kbd {
   min-height: 0;
   display: grid;
   grid-template-columns: 150px minmax(0, 1fr) 384px;
-  max-width: 1600px;
+  max-width: 1320px;
   width: 100%;
   margin: 0 auto;
 }

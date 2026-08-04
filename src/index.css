@@ -141,13 +141,17 @@ kbd {
 }
 
 .app-header {
-  display: flex;
-  align-items: center;
-  gap: 20px;
   padding: 10px 18px;
   border-bottom: 1px solid var(--line);
   background: linear-gradient(180deg, #17171a, #101012);
   backdrop-filter: blur(6px);
+}
+.header-inner {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  max-width: 1600px;
+  margin: 0 auto;
 }
 .brand {
   display: flex;
@@ -214,6 +218,9 @@ kbd {
   min-height: 0;
   display: grid;
   grid-template-columns: 150px minmax(0, 1fr) 384px;
+  max-width: 1600px;
+  width: 100%;
+  margin: 0 auto;
 }
 .col-palette,
 .col-side {

@@ -54,19 +54,21 @@ export default function App() {
   return (
     <div className="app">
       <header className="app-header">
-        <div className="brand">
-          <span className="brand-mark">◆</span>
-          <div className="brand-title">
-            <h1>석판 시뮬레이터</h1>
-            <span className="brand-sub">
-              토치라이트 인피니트
-              <br />
-              SS13 애프터라이트
-            </span>
+        <div className="header-inner">
+          <div className="brand">
+            <span className="brand-mark">◆</span>
+            <div className="brand-title">
+              <h1>석판 시뮬레이터</h1>
+              <span className="brand-sub">
+                토치라이트 인피니트
+                <br />
+                SS13 애프터라이트
+              </span>
+            </div>
           </div>
+          <Toolbar />
+          <VisitorCount />
         </div>
-        <Toolbar />
-        <VisitorCount />
       </header>
 
       {loading && <div className="loading">SS13 재능 데이터 불러오는 중…</div>}

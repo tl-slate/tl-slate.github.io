@@ -4,8 +4,12 @@
 
 - 스택: React 19 + Vite + TypeScript + zustand. 타입 체크: `npx tsc -p tsconfig.app.json --noEmit`
 - dev: `npm run dev` (localhost:5173) / build: `npm run build`
-- GitHub: https://github.com/chanhwuicoco/Torchlight-Slate-Simulator (PRIVATE)
-- 배포: **https://tl-slate.vercel.app** (Vercel, main 푸시 시 자동 배포. 구 주소 torchlight-slate-simulator.vercel.app도 유지)
+- GitHub(원본, PRIVATE): https://github.com/chanhwuicoco/Torchlight-Slate-Simulator — `origin` 리모트, Vercel과 연동
+- GitHub(공개 배포용): https://github.com/tl-slate/tl-slate.github.io — `pages` 리모트, **public**(GitHub Pages 무료 티어 요건). `tl-slate` 조직 소유(사용자가 직접 생성, 2026-08-04). 저장소 이름 자체가 `tl-slate.github.io`라 루트 도메인으로 서빙되고 vite `base` 설정이 필요 없음
+- **커밋·푸시는 항상 두 리모트 모두에** — `git push origin main && git push pages main`. 하나만 하면 그쪽만 갱신됨
+- 배포 (2곳, 둘 다 자동):
+  - **https://tl-slate.vercel.app** (Vercel, `origin` 푸시 시 자동 배포. 구 주소 torchlight-slate-simulator.vercel.app도 유지)
+  - **https://tl-slate.github.io** (GitHub Actions `.github/workflows/deploy-pages.yml`, `pages` 푸시 시 자동 배포). **Vercel이 vercel.app/`.app` 도메인이라 일부 커뮤니티 갤러리 링크 필터에 걸려서 추가함**(2026-08-04) — 재공유 시에도 주소가 그대로 유지되는 걸 원해서 리다이렉트가 아니라 진짜 이 도메인에서 직접 서빙. Pages 설정은 `build_type: workflow`로 고정(기본값 legacy branch-build와 경합해 소스 그대로 서빙되는 사고 있었음 — 새로 만든 직후엔 꼭 확인)
 - 커밋 신원: `chanhwuicoco <300696724+chanhwuicoco@users.noreply.github.com>` (회사 메일 금지)
 
 ## 구조

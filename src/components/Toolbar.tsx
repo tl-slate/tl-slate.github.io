@@ -32,44 +32,17 @@ export function Toolbar() {
     }
   }
 
+  function closeNaming() {
+    setNaming(false)
+    setName('')
+  }
+
   return (
     <div className="toolbar">
       <div className="tb-group tb-right">
-        {naming ? (
-          <span className="save-inline">
-            <input
-              type="text"
-              autoFocus
-              placeholder="세팅 이름…"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') commitSave()
-                else if (e.key === 'Escape') {
-                  setNaming(false)
-                  setName('')
-                }
-              }}
-            />
-            <button type="button" onClick={commitSave}>
-              저장
-            </button>
-            <button
-              type="button"
-              className="help-btn"
-              onClick={() => {
-                setNaming(false)
-                setName('')
-              }}
-            >
-              ✕
-            </button>
-          </span>
-        ) : (
-          <button type="button" onClick={() => setNaming(true)}>
-            {done ? '✓ 저장됨' : '💾 저장'}
-          </button>
-        )}
+        <button type="button" onClick={() => setNaming(true)}>
+          {done ? '✓ 저장됨' : '💾 저장'}
+        </button>
         <button type="button" onClick={() => void copyCurrentCode()} title="현재 보드를 코드로 복사">
           {copied ? '✓ 복사됨' : '⬆ 코드 복사'}
         </button>
@@ -83,6 +56,35 @@ export function Toolbar() {
           ?
         </button>
       </div>
+
+      {naming && (
+        <div className="modal-backdrop" onClick={closeNaming}>
+          <div className="modal save-name-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-head">
+              <h2>세팅 저장</h2>
+              <button type="button" onClick={closeNaming}>
+                ✕
+              </button>
+            </div>
+            <div className="modal-body">
+              <input
+                type="text"
+                autoFocus
+                placeholder="세팅 이름…"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') commitSave()
+                  else if (e.key === 'Escape') closeNaming()
+                }}
+              />
+              <button type="button" className="primary" onClick={commitSave}>
+                저장
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

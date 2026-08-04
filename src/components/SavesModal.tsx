@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import type { SimState } from '../types'
 import { exportCode, parseImportCode, useStore } from '../state/store'
 
-const fmtDate = (ms: number) => new Date(ms).toLocaleString('ko-KR', { dateStyle: 'short', timeStyle: 'short' })
+const fmtDate = (ms: number) => new Date(ms).toLocaleString('ko-KR', { dateStyle: 'short', timeStyle: 'medium' })
 
 export function SavesModal() {
   const show = useStore((s) => s.showSaves)

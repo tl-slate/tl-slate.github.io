@@ -13,7 +13,7 @@ export function VisitorCount() {
   if (n == null) return null
   return (
     <span className="visitor-count" title="누적 방문 (같은 IP 하루 1회)">
-      Hit {n.toLocaleString()}
+      👣 {n.toLocaleString()}
     </span>
   )
 }

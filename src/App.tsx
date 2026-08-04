@@ -67,6 +67,7 @@ export default function App() {
             </div>
           </div>
           <Toolbar />
+          <span className="credit">Made by 빅토치맨</span>
           <VisitorCount />
         </div>
       </header>

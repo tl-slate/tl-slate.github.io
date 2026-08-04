@@ -178,6 +178,12 @@ kbd {
   letter-spacing: 0.3px;
   white-space: nowrap;
 }
+.credit {
+  flex: 0 0 auto;
+  font-size: 0.72rem;
+  color: var(--muted);
+  white-space: nowrap;
+}
 .visitor-count {
   flex: 0 0 auto;
   padding: 4px 10px;

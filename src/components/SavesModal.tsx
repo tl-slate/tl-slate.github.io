@@ -92,12 +92,8 @@ export function SavesModal() {
                     <button type="button" className="primary" onClick={() => loadSave(s.id)}>
                       불러오기
                     </button>
-                    <button
-                      type="button"
-                      onClick={() => void copyCode(s.id, s.name, s.state)}
-                      title="코드 복사"
-                    >
-                      {copiedKey === s.id ? '✓' : '⬆'}
+                    <button type="button" onClick={() => void copyCode(s.id, s.name, s.state)} title="코드 복사">
+                      {copiedKey === s.id ? '✓ 복사됨' : '코드복사'}
                     </button>
                     <button type="button" className="danger" onClick={() => deleteSave(s.id)} title="삭제">
                       🗑

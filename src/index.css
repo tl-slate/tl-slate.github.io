@@ -973,17 +973,6 @@ kbd {
 .saves-modal {
   max-width: 580px;
 }
-.saves-top {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  align-items: center;
-  margin-bottom: 12px;
-}
-.saves-top input[type='text'] {
-  flex: 1;
-  min-width: 150px;
-}
 .import-row {
   display: flex;
   gap: 8px;

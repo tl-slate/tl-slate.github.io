@@ -8,7 +8,6 @@ export function SavesModal() {
   const show = useStore((s) => s.showSaves)
   const setShow = useStore((s) => s.setShowSaves)
   const saves = useStore((s) => s.saves)
-  const state = useStore((s) => s.state)
   const deleteSave = useStore((s) => s.deleteSave)
   const loadSave = useStore((s) => s.loadSave)
   const importSetup = useStore((s) => s.importSetup)
@@ -61,15 +60,6 @@ export function SavesModal() {
           </button>
         </div>
         <div className="modal-body">
-          <div className="saves-top">
-            <button
-              type="button"
-              onClick={() => void copyCode('current', '현재 세팅', state)}
-              title="현재 보드를 코드로 복사"
-            >
-              {copiedKey === 'current' ? '✓ 복사됨' : '⬆ 현재 세팅 코드 복사'}
-            </button>
-          </div>
           <div className="import-row">
             <input
               type="text"

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { createPortal } from 'react-dom'
 import { exportCode, useStore } from '../state/store'
 
 export function Toolbar() {
@@ -57,34 +58,38 @@ export function Toolbar() {
         </button>
       </div>
 
-      {naming && (
-        <div className="modal-backdrop" onClick={closeNaming}>
-          <div className="modal save-name-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-head">
-              <h2>세팅 저장</h2>
-              <button type="button" onClick={closeNaming}>
-                ✕
-              </button>
+      {naming &&
+        createPortal(
+          // 헤더에 backdrop-filter가 걸려 있어 position:fixed 자식의 containing block이
+          // 뷰포트가 아니라 헤더 박스가 돼버린다 — body로 직접 포탈링해 피한다.
+          <div className="modal-backdrop" onClick={closeNaming}>
+            <div className="modal save-name-modal" onClick={(e) => e.stopPropagation()}>
+              <div className="modal-head">
+                <h2>세팅 저장</h2>
+                <button type="button" onClick={closeNaming}>
+                  ✕
+                </button>
+              </div>
+              <div className="modal-body">
+                <input
+                  type="text"
+                  autoFocus
+                  placeholder="세팅 이름…"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') commitSave()
+                    else if (e.key === 'Escape') closeNaming()
+                  }}
+                />
+                <button type="button" className="primary" onClick={commitSave}>
+                  저장
+                </button>
+              </div>
             </div>
-            <div className="modal-body">
-              <input
-                type="text"
-                autoFocus
-                placeholder="세팅 이름…"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') commitSave()
-                  else if (e.key === 'Escape') closeNaming()
-                }}
-              />
-              <button type="button" className="primary" onClick={commitSave}>
-                저장
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+          </div>,
+          document.body,
+        )}
     </div>
   )
 }

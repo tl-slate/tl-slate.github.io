@@ -60,6 +60,7 @@ export function BoardView() {
 
   // 반응형: 가운데 영역 크기에 맞춰 보드를 스케일(가로/세로 중 먼저 닿는 쪽까지 꽉 채움)
   const [scale, setScale] = useState(1)
+  const [toast, setToast] = useState('')
   useEffect(() => {
     const el = wrapRef.current
     if (!el) return
@@ -182,10 +183,21 @@ export function BoardView() {
         })
       },
     })
-    const link = document.createElement('a')
-    link.download = '석판.png'
-    link.href = canvas.toDataURL('image/png')
-    link.click()
+    canvas.toBlob(async (blob) => {
+      if (!blob) return
+      try {
+        await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })])
+        setToast('스크린샷이 클립보드에 복사됐습니다')
+      } catch {
+        // 클립보드 권한이 없으면 다운로드로 대체
+        const link = document.createElement('a')
+        link.download = '석판.png'
+        link.href = canvas.toDataURL('image/png')
+        link.click()
+        setToast('클립보드 복사가 안 돼서 파일로 저장했습니다')
+      }
+      setTimeout(() => setToast(''), 1800)
+    }, 'image/png')
   }
 
   return (
@@ -194,10 +206,11 @@ export function BoardView() {
         <button type="button" onClick={() => reset()} className="danger-outline" title="보드 초기화">
           ↺ 초기화
         </button>
-        <button type="button" onClick={() => void takeScreenshot()} title="석판 스크린샷 저장">
+        <button type="button" onClick={() => void takeScreenshot()} title="석판 스크린샷을 클립보드에 복사">
           📷 스크린샷
         </button>
       </div>
+      {toast && <div className="board-toast">{toast}</div>}
       <div
         ref={boardRef}
         className="board"

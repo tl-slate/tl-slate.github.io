@@ -416,6 +416,18 @@ kbd {
   padding: 4px 9px;
   font-size: 0.8rem;
 }
+.board-toast {
+  position: absolute;
+  top: 42px;
+  right: 8px;
+  z-index: 20;
+  padding: 5px 10px;
+  font-size: 0.78rem;
+  color: var(--gold);
+  background: var(--panel);
+  border: 1px solid var(--gold-dim);
+  white-space: nowrap;
+}
 /* valid statue cell (the defined range) — bright */
 .cell {
   position: absolute;

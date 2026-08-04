@@ -48,8 +48,6 @@ export function SavesModal() {
     importSetup(parsed.state, parsed.name)
   }
 
-  const slateCount = (s: (typeof saves)[number]) => s.state.placements.length
-
   return (
     <div className="modal-backdrop" onClick={() => setShow(false)}>
       <div className="modal saves-modal" onClick={(e) => e.stopPropagation()}>
@@ -80,13 +78,12 @@ export function SavesModal() {
             <p className="muted small saves-empty">저장된 세팅이 없습니다. 상단의 “💾 저장”으로 현재 보드를 저장하세요.</p>
           ) : (
             <ul className="saves-list">
-              {saves.map((s) => (
+              {saves.map((s, i) => (
                 <li key={s.id}>
+                  <span className="save-num">{String(i + 1).padStart(2, '0')}.</span>
                   <div className="save-info">
                     <span className="save-name">{s.name}</span>
-                    <span className="save-meta">
-                      석판 {slateCount(s)}개 · {fmtDate(s.savedAt)}
-                    </span>
+                    <span className="save-date">{fmtDate(s.savedAt)}</span>
                   </div>
                   <div className="save-actions">
                     <button type="button" className="primary" onClick={() => loadSave(s.id)}>

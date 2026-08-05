@@ -7,6 +7,7 @@
 - GitHub(원본, PRIVATE): https://github.com/chanhwuicoco/Torchlight-Slate-Simulator — `origin` 리모트, Vercel과 연동
 - GitHub(공개 배포용): https://github.com/tl-slate/tl-slate.github.io — `pages` 리모트, **public**(GitHub Pages 무료 티어 요건). `tl-slate` 조직 소유(사용자가 직접 생성, 2026-08-04). 저장소 이름 자체가 `tl-slate.github.io`라 루트 도메인으로 서빙되고 vite `base` 설정이 필요 없음
 - **커밋·푸시는 항상 두 리모트 모두에** — `git push origin main && git push pages main`. 하나만 하면 그쪽만 갱신됨
+- **코드를 고치면 확인 질문 없이 항상 커밋 → 두 리모트 푸시(=배포)까지 끝낸다**(2026-08-05 사용자 확정: "배포까지 항상 다해")
 - 배포 (2곳, 둘 다 자동):
   - **https://tl-slate.vercel.app** (Vercel, `origin` 푸시 시 자동 배포. 구 주소 torchlight-slate-simulator.vercel.app도 유지)
   - **https://tl-slate.github.io** (GitHub Actions `.github/workflows/deploy-pages.yml`, `pages` 푸시 시 자동 배포). **Vercel이 vercel.app/`.app` 도메인이라 일부 커뮤니티 갤러리 링크 필터에 걸려서 추가함**(2026-08-04) — 재공유 시에도 주소가 그대로 유지되는 걸 원해서 리다이렉트가 아니라 진짜 이 도메인에서 직접 서빙. Pages 설정은 `build_type: workflow`로 고정(기본값 legacy branch-build와 경합해 소스 그대로 서빙되는 사고 있었음 — 새로 만든 직후엔 꼭 확인)
@@ -25,7 +26,7 @@
 - 보드 = 육각 2·4·6·6·4·2칸, 10×10 캔버스에 offset(2,2). 캔버스 안이면 배치 허용, 범위밖/겹침은 빨간 표시만
 - 등급: 하위 / 중위 / 레전드중위 / 핵심(1·2레벨) / 명왕은 하위·중위·레전드중위·**절대자**(=데이터상 tier '핵심')
 - 핵심 재능: **2레벨 = 신 이름 보드(신당 6개)**, **1레벨 = 그 신 소속 직업 보드(직업당 4개)**. 보드 없는 핵심(제노 프리즘용)은 데이터에서 제외
-- 일반(신) 석판 = 고정 2[하위/중위] + 낙인 3[하위/중위/레전드중위]. 재능 풀 = 그 신 소속 **보드 전부**(신 보드 + 직업 보드 4개)
+- 일반(신) 석판 = 고정 2[하위/중위/레전드중위] + 낙인 3[하위/중위/레전드중위]. 재능 풀 = 그 신 소속 **보드 전부**(신 보드 + 직업 보드 4개). 고정 슬롯도 레전드중위를 받는다(2026-08-05 사용자 정정 — 한동안 낙인에만 반영돼 있었음)
 - 재능 최대 개수(하위3/중위3/레전드중위1/핵심1)는 **석판 1장 기준**. 다른 석판이면 같은 재능도 또 적용
 - **석판 자체의 보드 내 최대 개수(강제, `src/engine/limits.ts`)**: 빛이 된 나방 3 / 들불 번지는 순간 1 / 추락하는 별빛 3 / 신성의 일각 3 / **신의 계보 1** / 명왕 3종 통틀어 1(limitGroup 'nether'). 우주의 균열·별들의 고향은 tlidb 한·영 양쪽에 표기가 없어 무제한, 일반 석판도 무제한
   - 출처: **석판별 전용 페이지**(`/ko/Sparks_of_Moth_Fire`, `/When_Sparks_Set_the_Prairie_Ablaze`, `/Fallen_Starlight`, `/A_Corner_of_Divinity`, `/Pedigree_of_Gods`, `/Space_Rift`, `/Residence_of_Stars`). Divinity_Slate 목록 페이지엔 이 줄이 빠져 있어 거기만 보면 "표기 없음"으로 오판한다
